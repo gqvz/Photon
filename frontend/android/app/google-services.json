@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "287720406331",
+    "project_id": "photon-42a35",
+    "storage_bucket": "photon-42a35.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:287720406331:android:e96254226124d573cb8b1e",
+        "android_client_info": {
+          "package_name": "tech.garvit.photon"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkxeGvdeSfD7LfxgQCln7oPlLmOPDBL0Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

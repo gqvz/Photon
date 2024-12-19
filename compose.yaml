@@ -1,0 +1,12 @@
+﻿services:
+  photon.backend:
+    image: photon.backend
+    build:
+      context: .
+      dockerfile: Photon.Backend/Dockerfile
+
+  photon.backend-1:
+    image: photon.backend-1
+    build:
+      context: .
+      dockerfile: Photon.Backend/Dockerfile
