@@ -1,0 +1,24 @@
+{
+  "Database": {
+    "User": "",
+    "Password": "",
+    "Host": "",
+    "Port": 5432,
+    "Database": ""
+  },
+  "Discord": {
+    "ClientId": "",
+    "ClientSecret": "",
+    "RedirectUri": ""
+  },
+  "Github": {
+    "ClientId": "",
+    "ClientSecret": "",
+    "RedirectUri": ""
+  },
+  "Google": {
+    "ClientId": "",
+    "ClientSecret": ""
+  },
+  "SqidsAlphabet" : ""
+}

@@ -1,0 +1,1 @@
+const String apiUrl = "photon.garvit.tech";

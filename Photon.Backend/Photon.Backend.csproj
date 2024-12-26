@@ -4,15 +4,54 @@
         <TargetFramework>net9.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-        <InvariantGlobalization>true</InvariantGlobalization>
-        <PublishAot>true</PublishAot>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="FluentResults" Version="3.16.0" />
+        <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
+        <PackageReference Include="Google.Apis.Auth.AspNetCore" Version="1.65.0" />
+        <PackageReference Include="Grpc.AspNetCore.Server" Version="2.67.0" />
+        <PackageReference Include="Grpc.Tools" Version="2.69.0-pre1">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.AspNetCore.Grpc.Swagger" Version="0.9.0" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.0"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.0">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Nanoid" Version="3.1.0" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.2" />
+        <PackageReference Include="Octokit" Version="13.0.1" />
+        <PackageReference Include="Riok.Mapperly" Version="4.1.1" />
+        <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
+        <PackageReference Include="Serilog.Expressions" Version="5.1.0-dev-00186" />
+        <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+        <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+        <PackageReference Include="Serilog.Sinks.Map" Version="2.0.0" />
+        <PackageReference Include="Serilog.Sinks.RollingFile" Version="3.3.1-dev-00771" />
+        <PackageReference Include="SixLabors.ImageSharp" Version="3.1.6" />
+        <PackageReference Include="StackExchange.Redis" Version="2.8.24" />
+        <PackageReference Include="StackExchange.Redis.Extensions.AspNetCore" Version="10.2.0" />
+        <PackageReference Include="StackExchange.Redis.Extensions.Newtonsoft" Version="10.2.0" />
+        <PackageReference Include="Vogen" Version="6.0.0-beta.2" />
+    </ItemGroup>
+    
+    <ItemGroup>
       <Content Include="..\.dockerignore">
         <Link>.dockerignore</Link>
       </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Extensions\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Protobuf Include="Protos\Auth.proto" GrpcServices="Server" />
+        <Protobuf Include="Protos\Users.proto" GrpcServices="Server" />
     </ItemGroup>
 
 </Project>

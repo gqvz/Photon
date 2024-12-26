@@ -1,1 +1,0 @@
-const String apiUrl = "https://lp.tail3e2bc4.ts.net/";

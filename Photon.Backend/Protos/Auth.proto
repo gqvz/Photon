@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+option csharp_namespace = "Photon.Backend.Protos";
+
+package Photon.Backend.Protos;
+
+service Auth {
+  rpc Login(LoginRequest) returns (google.protobuf.Empty) {}
+}
+
+message LoginRequest {
+  string token = 1;
+  
+  LoginType loginType = 2;
+}
+
+
+enum LoginType {
+  GOOGLE = 0;
+  GITHUB = 1;
+  DISCORD = 2;
+}
