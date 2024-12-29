@@ -8,6 +8,21 @@ package Photon.Backend.Protos;
 
 service Users {
   rpc Me (google.protobuf.Empty) returns (User) {}
+  rpc UpdateUsername (UpdateUsernameRequest) returns (google.protobuf.Empty) {}
+  rpc GetUser (GetUserRequest) returns (User) {}
+  rpc UpdateFCMToken (UpdateFCMTokenRequest) returns (google.protobuf.Empty) {}
+}
+
+message UpdateFCMTokenRequest {
+  string Token = 1;
+}
+
+message GetUserRequest {
+  string Id = 1;
+}
+
+message UpdateUsernameRequest {
+  string Name = 1;
 }
 
 message User {

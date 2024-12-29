@@ -1,9 +1,12 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:photon/generated/Users.pb.dart';
 import 'package:photon/pages/account_page.dart';
 import 'package:photon/pages/friends_page.dart';
 import 'package:photon/pages/images_page.dart';
 import 'package:photon/pages/session_page.dart';
+import 'package:photon/services.dart';
 
 import 'login_page.dart';
 
@@ -15,7 +18,13 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late int currentPageIndex = 1;
+  late int currentPageIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _updateFCMToken();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,5 +67,10 @@ class _HomePageState extends State<HomePage> {
             ][currentPageIndex]),
           ),
         ));
+  }
+
+  Future<void> _updateFCMToken() async {
+    var token = await FirebaseMessaging.instance.getToken();
+    await Services.usersClient.updateFCMToken(UpdateFCMTokenRequest(token: token));
   }
 }

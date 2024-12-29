@@ -37,6 +37,11 @@ class CookieInterceptor extends ClientInterceptor {
       CallOptions options,
       ClientStreamingInvoker<Q, R> invoker,
       ) {
+    if (Services.cookie.isNotEmpty) {
+      print("Adding cookie to request");
+      options = options.mergedWith(CallOptions(metadata: {'Cookie': "Photon.Auth=${Services.cookie};"}));
+    }
+
     final call = invoker(method, requests, options);
 
     call.headers.then((headers) {

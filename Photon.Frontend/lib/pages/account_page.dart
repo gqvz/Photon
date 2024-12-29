@@ -1,6 +1,13 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:photon/cached_avatar.dart';
+import 'package:photon/generated/Avatar.pb.dart';
+import 'package:photon/generated/Users.pb.dart';
+import 'package:photon/inline_editable_text.dart';
 import 'package:photon/main.dart';
 import 'package:photon/pages/friends_page.dart';
 import 'package:photon/services.dart';
@@ -16,9 +23,10 @@ class AccountPage extends StatefulWidget {
 
 class _AccountPageState extends State<AccountPage> {
   late String inputFieldText = "";
-
   late List<FriendData> friendRequests;
   late Future<void> _friendRequestsFuture;
+  bool isUploading = false; // Track upload state
+  Uint8List? uploadedImageData; // Temporarily store uploaded image data
 
   @override
   void initState() {
@@ -32,54 +40,101 @@ class _AccountPageState extends State<AccountPage> {
       resizeToAvoidBottomInset:
           true, // Ensures keyboard doesn't overlap content
       body: GestureDetector(
-        onTap: () => FocusScope.of(context)
-            .unfocus(), // Dismiss the keyboard when tapping outside
+        onTap: () => FocusScope.of(context).unfocus(),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: SingleChildScrollView(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment
-                  .start, // Align to start for better readability
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 // Profile Section
                 Center(
                   child: ClipOval(
-                    child: SizedBox(
-                      width: 150,
-                      height: 150,
-                      child: Image.network(
-                        "https://avatars.githubusercontent.com/u/70444445?s=1024&v=4",
-                        fit: BoxFit.cover, // Maintain aspect ratio and fill
+                    child: GestureDetector(
+                      onTap: () async {
+                        var imagePicker = ImagePicker();
+                        var pickedImage = await imagePicker.pickImage(
+                            source: ImageSource.gallery);
+
+                        if (pickedImage != null) {
+                          // Read the bytes asynchronously *before* calling setState
+                          final imageBytes = await pickedImage.readAsBytes();
+
+                          // Show loading indicator immediately and use the local image
+                          setState(() {
+                            isUploading = true;
+                            uploadedImageData = Uint8List.fromList(imageBytes);
+                          });
+
+                          try {
+                            // Perform the upload
+                            await Services.avatarsClient.set(
+                              Stream.value(ImageData(data: uploadedImageData!)),
+                            );
+
+                            // Clear the cached avatar after the upload
+                            avatars[Services.user.id] = Image.memory(uploadedImageData!, fit: BoxFit.cover);
+
+                            // Update state after successful upload
+                            setState(() {
+                              isUploading = false;
+                            });
+                          } catch (e) {
+                            // Handle error gracefully
+                            setState(() {
+                              isUploading = false; // Hide the loading indicator
+                              uploadedImageData =
+                                  null; // Clear temporary image on error
+                            });
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text("Failed to upload avatar: $e")),
+                            );
+                          }
+                        }
+                      },
+                      child: SizedBox(
+                        width: 150,
+                        height: 150,
+                        child: isUploading
+                            ? const CircularProgressIndicator() // Show loading indicator
+                            : (uploadedImageData != null
+                                ? Image.memory(uploadedImageData!,
+                                    fit: BoxFit.cover) // Show uploaded image
+                                : CachedAvatar(
+                                    id: Services
+                                        .user.id)), // Show cached avatar
                       ),
                     ),
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Center(
-                  child: Text(
-                    "Garvit Sharmaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-                    style: TextStyle(fontSize: 35),
-                    textAlign: TextAlign.center,
-                  ),
+                Center(
+                  child: InlineEditableText(initialText: Services.user.name, onDoneEditing: (text) async {
+                    await Services.usersClient.updateUsername(UpdateUsernameRequest(name: text));
+                    Services.user.name = text;
+                  }, textStyle: const TextStyle(fontSize: 40)),
                 ),
                 const SizedBox(height: 20),
                 Center(
                   child: TextButton(
                       onPressed: () {
-                        Share.share("Add me on Photon!\nhttps://photon.garvit.tech/frienddl/adjw2j");
+                        Share.share(
+                            "Add me on Photon!\nhttps://photon.garvit.tech/frienddl/${Services.user.id}");
                       },
-                      child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                        Text("Friend code: adjw2j",
-                            style: TextStyle(fontSize: 20)),
-                        Padding(
-                            padding: EdgeInsets.only(left: 16),
-                            child: FaIcon(
-                              FontAwesomeIcons.link,
-                              size: 20,
-                            )),
-                      ])),
+                            Text("Friend code: ${Services.user.id}",
+                                style: const TextStyle(fontSize: 20)),
+                            const Padding(
+                                padding: EdgeInsets.only(left: 16),
+                                child: FaIcon(
+                                  FontAwesomeIcons.link,
+                                  size: 20,
+                                )),
+                          ])),
                 ),
                 const SizedBox(height: 20),
                 SizedBox(
@@ -130,7 +185,7 @@ class _AccountPageState extends State<AccountPage> {
                         ? null
                         : () {
                             setState(() {
-                              // TODO: Implement session code logic
+                              // TODO: Implement add friend logic
                             });
                           },
                     child: const Text(
@@ -316,29 +371,17 @@ class _AccountPageState extends State<AccountPage> {
 
     // Simulate data
     friendRequests = [
-      FriendData(
-          "Alice",
-          "https://avatars.githubusercontent.com/u/70444445?s=1024&v=4",
+      FriendData("Alice", "https://picsum.photos/200/200",
           DateTime.now().subtract(const Duration(days: 4))),
-      FriendData(
-          "Alice",
-          "https://avatars.githubusercontent.com/u/70444445?s=1024&v=4",
+      FriendData("Alice", "https://picsum.photos/200/200",
           DateTime.now().subtract(const Duration(days: 369))),
-      FriendData(
-          "Bob",
-          "https://avatars.githubusercontent.com/u/70444445?s=1024&v=4",
+      FriendData("Bob", "https://picsum.photos/200/200",
           DateTime.now().subtract(const Duration(days: 942))),
-      FriendData(
-          "Charlie",
-          "https://avatars.githubusercontent.com/u/70444445?s=1024&v=4",
+      FriendData("Charlie", "https://picsum.photos/200/200",
           DateTime.now().subtract(const Duration(days: 8))),
-      FriendData(
-          "David",
-          "https://avatars.githubusercontent.com/u/70444445?s=1024&v=4",
+      FriendData("David", "https://picsum.photos/200/200",
           DateTime.now().subtract(const Duration(days: 36))),
-      FriendData(
-          "Eve",
-          "https://avatars.githubusercontent.com/u/70444445?s=1024&v=4",
+      FriendData("Eve", "https://picsum.photos/200/200",
           DateTime.now().subtract(const Duration(days: 65))),
     ];
   }

@@ -3,7 +3,7 @@ using Vogen;
 
 namespace Photon.Backend.VOs;
 
-[ValueObject<string>(Conversions.EfCoreValueConverter)]
+[ValueObject<string>(Conversions.EfCoreValueConverter | Conversions.SystemTextJson)]
 public readonly partial struct Email
 {
     public static readonly Regex EmailRegex = MyRegex();

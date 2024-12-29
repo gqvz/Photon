@@ -1,4 +1,5 @@
 
+using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
@@ -25,7 +26,8 @@ internal sealed class AuthService(
     IUserRepository userRepository,
     HttpClient client,
     GitHubClient gitHubClient,
-    IConfiguration configuration
+    IConfiguration configuration,
+    ILogger<AuthService> logger
     ) : Auth.AuthBase
 {
     private sealed record UserDetails(Username Username, Email Email, Uri Avatar);
@@ -41,7 +43,6 @@ internal sealed class AuthService(
 
     public override async Task<Empty> Login(LoginRequest request, ServerCallContext context)
     {
-        Console.WriteLine(context.RequestHeaders);
         var validationResult = await validator.ValidateAsync(request);
 
         if (!validationResult.IsValid)
@@ -108,8 +109,9 @@ internal sealed class AuthService(
         return new Empty();
     }
 
-    private async Task<Result<UserDetails>> GetDetailsGithub(string code)
+    private async Task<Result<UserDetails>> GetDetailsGithub(string code) 
     {
+        var ts = Stopwatch.GetTimestamp();
         var tokenRequest =
             new OauthTokenRequest(configuration["Github:ClientId"], configuration["Github:ClientSecret"], code);
         var token = await gitHubClient.Oauth.CreateAccessToken(tokenRequest);
@@ -128,11 +130,14 @@ internal sealed class AuthService(
         var user = userTask.Result;
         var email = emailTask.Result.FirstOrDefault(x => x.Primary)?.Email!;
         
+        logger.LogInformation("Github login took {time} ms", (Stopwatch.GetTimestamp() - ts) / (double) Stopwatch.Frequency * 1000);
+        
         return new UserDetails(Username.From(user.Name), Email.From(email), new Uri(user.AvatarUrl));
     }
 
     private async Task<Result<UserDetails>> GetDetailsDiscord(string code)
     {
+        var ts = Stopwatch.GetTimestamp();
         client.BaseAddress = new Uri("https://discord.com/");
         
         var data = new Dictionary<string, string>
@@ -169,6 +174,7 @@ internal sealed class AuthService(
         var details = new UserDetails(Username.From(username), Email.From(email), 
             new Uri("https://cdn.discordapp.com/avatars/" + id + "/" + avatar + ".png"));
         
+        logger.LogInformation("Discord login took {time} ms", (Stopwatch.GetTimestamp() - ts) / (double) Stopwatch.Frequency * 1000);
         return details;
     }
 
@@ -176,11 +182,12 @@ internal sealed class AuthService(
     {
         try
         {
+            var ts = Stopwatch.GetTimestamp();
             var payload = await GoogleJsonWebSignature.ValidateAsync(token);
             var email = Email.From(payload.Email);
-            Console.WriteLine(payload.Name);
             var username = Username.From(payload.Name);
             var avatar = new Uri(payload.Picture);
+            logger.LogInformation("Google login took {time} ms", (Stopwatch.GetTimestamp() - ts) / (double) Stopwatch.Frequency * 1000);
             return new UserDetails(username, email, avatar);
         }
         catch (Exception e)

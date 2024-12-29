@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:device_preview/device_preview.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -9,10 +12,12 @@ import 'package:photon/pages/login_page.dart';
 import 'package:photon/services.dart';
 import 'package:photon/pages/home_page.dart';
 import 'package:photon/permission_checker.dart';
-import 'firebase_options.dart';
+import 'package:photon/background_handler.dart';
+import 'package:photon/firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  initializeService();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -23,6 +28,7 @@ void main() async {
     ),
   );
 }
+
 
 class Photon extends StatefulWidget {
   const Photon({super.key});
@@ -92,25 +98,21 @@ class _PhotonState extends State<Photon> {
     const storage = FlutterSecureStorage();
     var cookie = await storage.read(key: 'cookie');
     if (cookie == null) {
-      print("no cookie found in storage");
       setState(() {
         validUser = false;
         login = true;
       });
       return;
     }
-    print("found cookie in storage, checking it: Cookie: $cookie");
     try {
       Services.cookie = cookie;
       var resp = await Services.usersClient.me(Empty());
       Services.user = resp;
-      print("cookie worked");
       setState(() {
         validUser = true;
         login = true;
       });
     } catch (e) {
-      print("cookie did not wokr");
       setState(() {
         validUser = false;
         login = true;
@@ -139,7 +141,6 @@ class _PermissionHandlerState extends State<_PermissionHandler> {
   Future<void> _checkPermissions() async {
     try {
       final result = await PermissionChecker.checkAndRequestPermissions();
-      print(result);
       if (!result['granted']) {
         if (mounted) {
           String message;

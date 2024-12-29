@@ -1,0 +1,1 @@
+protoc --dart_out=grpc:lib/generated --proto_path=../Photon.Backend/Protos -Iprotos ../Photon.Backend/Protos/*.proto google/protobuf/empty.proto

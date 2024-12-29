@@ -8,11 +8,13 @@ public sealed class UserEntity
 {
     [Key]
     [MapperIgnore]
-    public ulong DbId { get; set; }
+    public Guid DbId { get; set; }
     
     public required UserId Id { get; set; }
     
     public required Username Username { get; set; }
     
     public required Email Email { get; set; }
+    
+    public NotificationToken? NotificationToken { get; set; }
 }

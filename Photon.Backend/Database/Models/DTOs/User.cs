@@ -9,4 +9,6 @@ public sealed class User
     public Username Username { get; set; }
     
     public Email Email { get; set; }
+
+    public NotificationToken? NotificationToken { get; set; }
 }

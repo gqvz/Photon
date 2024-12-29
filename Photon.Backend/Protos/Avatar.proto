@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+option csharp_namespace = "Photon.Backend.Protos";
+
+package Photon.Backend.Protos;
+
+service Avatars {
+  rpc Get (GetAvatarRequest) returns (stream ImageData) {}
+  rpc Set (stream ImageData) returns (google.protobuf.Empty) {}
+}
+
+message ImageData {
+  bytes Data = 1;
+}
+
+message GetAvatarRequest {
+  string Id = 1;
+}

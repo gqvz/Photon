@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:photon/pages/friends_page.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
@@ -13,7 +14,7 @@ class SessionPage extends StatefulWidget {
 
 class _SessionPageState extends State<SessionPage> {
   late String sessionName = "real trip";
-  late String sessionCode = "12364";
+  late String sessionCode = "123456";
   late String inputFieldText = "";
   
   late List<FriendData> participantsOrInvites;
@@ -57,22 +58,49 @@ class _SessionPageState extends State<SessionPage> {
                           labelText: "Session Code",
                         ),
                       )
-                    : SizedBox(
-                        child: TextButton(
+                :SizedBox(
+                  height: 60, // Set a consistent height for both buttons
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.max,
+                    children: <Widget>[
+                      Expanded(
+                        child: ElevatedButton(
                           onPressed: () {
                             Share.share(
                                 'Join my Photon session\nhttps://photon.garvit.tech/join/$sessionCode');
                           },
+                          style: TextButton.styleFrom(
+                            padding: EdgeInsets.zero, // Remove extra padding
+                            alignment: Alignment.center, // Ensure alignment is centered
+                          ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(sessionCode,
-                                  style: const TextStyle(fontSize: 40)),
-                            const Padding(padding: EdgeInsets.only(left: 16), child: FaIcon(FontAwesomeIcons.link, size: 40,))
+                              const FaIcon(FontAwesomeIcons.link, size: 45),
+                              const SizedBox(width: 16), // Add spacing between the icon and text
+                              Text(sessionCode, style: const TextStyle(fontSize: 45)),
                             ],
                           ),
                         ),
                       ),
+                      const SizedBox(width: 8), // Add spacing between the buttons
+                      SizedBox(
+                        height: 60, // Ensure square dimensions for the QR code button
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            await _showQrDialog(context, sessionCode);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            shape: const CircleBorder(),
+                            padding: EdgeInsets.zero, // Remove padding to fit height
+                          ),
+                          child: const FaIcon(FontAwesomeIcons.qrcode, size: 32),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
                 const SizedBox(height: 20),
                 SizedBox(
                   width: double.infinity,
@@ -260,7 +288,29 @@ class _SessionPageState extends State<SessionPage> {
       ),
     );
   }
-
+  Future<void> _showQrDialog(BuildContext context, String sessionCode) async {
+    showDialog(context: context, builder: (context) {
+      return AlertDialog(
+        title: const Text("Session QR Code", textAlign: TextAlign.center,),
+        content: SizedBox(
+          width: 300,
+          height: 300,
+          child: QrImageView(
+            data: "https://photon.garvit.tech/join/$sessionCode",
+            version: QrVersions.auto,
+            gapless: false,
+            backgroundColor: Colors.transparent,
+            eyeStyle: const QrEyeStyle(eyeShape: QrEyeShape.circle, color: Colors.white),
+            dataModuleStyle: const QrDataModuleStyle(
+              dataModuleShape: QrDataModuleShape.circle,
+              color: Colors.white,
+            ),
+            embeddedImage: const NetworkImage("https://picsum.photos/200/200"),
+          ),
+        ),
+      );
+    });
+  }
   bool _isButtonDisabled() {
     return inputFieldText.length < 6 && inputFieldText.isNotEmpty;
   }
@@ -283,27 +333,27 @@ class _SessionPageState extends State<SessionPage> {
     participantsOrInvites = [
       FriendData(
           "Alice",
-          "https://avatars.githubusercontent.com/u/70444445?s=1024&v=4",
+          "https://picsum.photos/200/200",
           DateTime.now().subtract(const Duration(days: 4))),
       FriendData(
           "Alice",
-          "https://avatars.githubusercontent.com/u/70444445?s=1024&v=4",
+          "https://picsum.photos/200/200",
           DateTime.now().subtract(const Duration(days: 369))),
       FriendData(
           "Bob",
-          "https://avatars.githubusercontent.com/u/70444445?s=1024&v=4",
+          "https://picsum.photos/200/200",
           DateTime.now().subtract(const Duration(days: 942))),
       FriendData(
           "Charlie",
-          "https://avatars.githubusercontent.com/u/70444445?s=1024&v=4",
+          "https://picsum.photos/200/200",
           DateTime.now().subtract(const Duration(days: 8))),
       FriendData(
           "David",
-          "https://avatars.githubusercontent.com/u/70444445?s=1024&v=4",
+          "https://picsum.photos/200/200",
           DateTime.now().subtract(const Duration(days: 36))),
       FriendData(
           "Eve",
-          "https://avatars.githubusercontent.com/u/70444445?s=1024&v=4",
+          "https://picsum.photos/200/200",
           DateTime.now().subtract(const Duration(days: 65))),
     ];
   }

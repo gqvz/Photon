@@ -34,27 +34,27 @@ class _FriendsPageState extends State<FriendsPage> {
       friends = [
         FriendData(
             "Alice",
-            "https://avatars.githubusercontent.com/u/70444445?s=1024&v=4",
+            "https://picsum.photos/200/200",
             DateTime.now().subtract(const Duration(days: 4))),
         FriendData(
             "Alice",
-            "https://avatars.githubusercontent.com/u/70444445?s=1024&v=4",
+            "https://picsum.photos/200/200",
             DateTime.now().subtract(const Duration(days: 369))),
         FriendData(
             "Bob",
-            "https://avatars.githubusercontent.com/u/70444445?s=1024&v=4",
+            "https://picsum.photos/200/200",
             DateTime.now().subtract(const Duration(days: 942))),
         FriendData(
             "Charlie",
-            "https://avatars.githubusercontent.com/u/70444445?s=1024&v=4",
+            "https://picsum.photos/200/200",
             DateTime.now().subtract(const Duration(days: 8))),
         FriendData(
             "David",
-            "https://avatars.githubusercontent.com/u/70444445?s=1024&v=4",
+            "https://picsum.photos/200/200",
             DateTime.now().subtract(const Duration(days: 36))),
         FriendData(
             "Eve",
-            "https://avatars.githubusercontent.com/u/70444445?s=1024&v=4",
+            "https://picsum.photos/200/200",
             DateTime.now().subtract(const Duration(days: 65))),
       ];
       return null;
@@ -70,8 +70,7 @@ class _FriendsPageState extends State<FriendsPage> {
       // Once complete, show your application
       if (snapshot.connectionState == ConnectionState.done &&
           friends.isNotEmpty) {
-        return Flexible(
-          child: ListView.builder(
+        return ListView.builder(
             padding: const EdgeInsets.only(left: 8, right: 8),
             itemCount: friends.length, // Replace with dynamic participant count
             itemBuilder: (context, index) {
@@ -184,8 +183,7 @@ class _FriendsPageState extends State<FriendsPage> {
                     )),
               );
             },
-          ),
-        );
+          );
       } else if (snapshot.connectionState == ConnectionState.done &&
           friends.isEmpty) {
         return const Center(

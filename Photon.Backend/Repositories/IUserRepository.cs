@@ -12,7 +12,7 @@ public interface IUserRepository
     
     public Task<Result<User>> CreateUserAsync(Username username, Email email);
     
-    public Task<Result> UpdateUserAsync(Username username);
+    public Task<Result> UpdateUserAsync(UserId userId, Username? username = null, NotificationToken? notificationToken = null);
     
     public Task<Result> DeleteUserAsync(UserId userId);
 }

@@ -1,6 +1,5 @@
 using FluentValidation;
-using Google.Apis.Auth;
-using Newtonsoft.Json;
+using Microsoft.AspNetCore.Mvc;
 using Octokit;
 using Photon.Backend;
 using Photon.Backend.Database;
@@ -22,6 +21,8 @@ const string fileLogFormat =
     "[{@t:yyyy-MM-dd HH:mm:ss.fff}] " +
     "[{@l}] " +
     "[{Coalesce(SourceContext, '<none>')}]: {@m}\n{@x}";
+
+builder.Configuration.AddJsonFile("Config.json", optional: false);
 
 builder.Host.UseSerilog((_, configuration) =>
 {
@@ -46,9 +47,12 @@ builder.Host.UseSerilog((_, configuration) =>
             sinkMapCountLimit: 1);
 });
 
+
 builder.Services.AddGrpc();
 builder.Services.AddGrpcSwagger();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddHostedService<DbMigrationService>();
 
 builder.Services.AddStackExchangeRedisExtensions<NewtonsoftSerializer>(serviceCollection =>
 {
@@ -74,6 +78,10 @@ builder.Services.AddStackExchangeRedisExtensions<NewtonsoftSerializer>(serviceCo
         }
     ];
 });
+// builder.Services.AddMemoryCache();
+#pragma warning disable EXTEXP0018
+builder.Services.AddHybridCache();
+#pragma warning restore EXTEXP0018
 builder.Services.AddSingleton<GitHubClient>(_ => new GitHubClient(new ProductHeaderValue("Photon")));
 builder.Services.AddHttpClient();
 builder.Services.AddAuthentication().AddCookie(options =>
@@ -91,7 +99,7 @@ builder.Services.AddAuthentication().AddCookie(options =>
 builder.Services.AddAuthorization();
 
 builder.Services.AddTransient<Mapper>();
-
+builder.Services.AddDbContext<PhotonContext>();
 builder.Services.AddOpenApi();
 builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly, includeInternalTypes: true);
 
@@ -108,10 +116,15 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapGrpcService<AuthService>();
 app.MapGrpcService<UsersService>();
+app.MapGrpcService<AvatarService>();
+app.Map("/callback/{method}", (HttpContext context, [FromRoute] string method, [FromQuery] string code) =>
+{
+    context.Response.Redirect($"photon://auth/{method}?code={code}");
+});
+app.UseWebSockets();
 app.Run();
