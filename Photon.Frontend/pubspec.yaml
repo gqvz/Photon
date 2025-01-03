@@ -1,0 +1,28 @@
+name: photon
+description: "Image sharing application"
+publish_to: 'none' 
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.6.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  bloc: ^8.1.4
+  flutter_bloc: ^8.1.6
+  flutter_svg: ^2.0.16
+  equatable: ^2.0.7
+  sign_button: ^2.0.6
+
+dev_dependencies:
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+  
+  assets:
+    - assets/svgs/

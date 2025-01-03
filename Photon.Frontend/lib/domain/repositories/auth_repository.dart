@@ -1,0 +1,4 @@
+class AuthenticationRepository {
+  void dispose() {}
+  
+}
